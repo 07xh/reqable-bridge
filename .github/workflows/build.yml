@@ -29,7 +29,7 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Extract source
-        run: unzip -q source/reqable-bridge-source-v0.1.tar.gz -d "$RUNNER_TEMP/reqable-bridge-source"
+        run: mkdir -p "$RUNNER_TEMP/reqable-bridge-source" && tar -xzf source/reqable-bridge-source-v0.1.tar.gz -C "$RUNNER_TEMP/reqable-bridge-source"
       - name: Install Android SDK 35
         run: yes | sdkmanager --licenses >/dev/null && sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
       - name: Assemble debug APK
