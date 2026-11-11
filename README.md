@@ -2,13 +2,15 @@
 
 Windows Reqable capture → Android hotspot receiver, with phone-side start/pause control for Reqable.
 
-## Source bundle
+## Source
 
-The v0.1 source bundle is available in the ChatGPT conversation as **Reqable Bridge v0.1 source ZIP**. Upload that ZIP to this repository at:
+The complete v0.1 source archive is stored losslessly as seven ordered binary segments in `source/parts/`. Rebuild and extract it on Windows with:
 
-`source/reqable-bridge-source-v0.1.zip`
+```powershell
+powershell -ExecutionPolicy Bypass -File .\source\assemble.ps1
+```
 
-The archive contains the complete Android and Windows source projects.
+The script verifies the reconstructed archive SHA-256 before extraction.
 
 ## What it does
 
@@ -22,7 +24,7 @@ This is near-real-time forwarding of completed HTTP sessions, not a raw TCP/IP p
 
 ## Build and verification
 
-After the source ZIP is uploaded to `source/`, GitHub Actions builds a debug APK and runs Windows bridge tests. Physical-device hotspot connectivity and end-to-end Reqable transfer still require validation on the target devices.
+GitHub Actions assembles the source archive, builds a debug APK, and runs Windows bridge tests. Physical-device hotspot connectivity and end-to-end Reqable transfer still require validation on the target devices.
 
 ## Security
 

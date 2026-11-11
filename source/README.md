@@ -1,7 +1,13 @@
-# Source bundle upload
+# Source archive
 
-1. Download the v0.1 source ZIP from the ChatGPT conversation.
-2. Open the repository on GitHub.
-3. Choose **Add file → Upload files**.
-4. Upload it as `source/reqable-bridge-source-v0.1.zip`.
-5. Commit to `main`. The GitHub Actions workflow will then build the debug APK and run Windows bridge tests.
+The v0.1 ZIP is stored as seven binary segments in `parts/part-01.bin` through `parts/part-07.bin` to preserve its exact bytes.
+
+On Windows, run:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File .\source\assemble.ps1
+```
+
+The script reconstructs `reqable-bridge-source-v0.1.zip`, verifies its SHA-256, and extracts it to `source/extracted/`.
+
+GitHub Actions performs the same reconstruction automatically before building and testing.
