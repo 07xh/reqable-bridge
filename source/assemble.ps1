@@ -1,3 +1,7 @@
+param(
+    [string]$Destination = (Join-Path $PSScriptRoot "extracted")
+)
+
 $ErrorActionPreference = "Stop"
 
 $partsDir = Join-Path $PSScriptRoot "parts"
@@ -24,9 +28,28 @@ if ($actual -ne $expected) {
     throw "Source archive SHA-256 mismatch. Expected $expected, got $actual."
 }
 
-$destination = Join-Path $PSScriptRoot "extracted"
-if (Test-Path -LiteralPath $destination) {
-    Remove-Item -LiteralPath $destination -Recurse -Force
+if (Test-Path -LiteralPath $Destination) {
+    Remove-Item -LiteralPath $Destination -Recurse -Force
 }
-Expand-Archive -LiteralPath $zipPath -DestinationPath $destination -Force
-Write-Host "Source archive verified and extracted to: $destination"
+Expand-Archive -LiteralPath $zipPath -DestinationPath $Destination -Force
+
+$mainActivity = Join-Path $Destination "reqable-bridge\android\app\src\main\java\com\reqable\bridge\MainActivity.kt"
+if (-not (Test-Path -LiteralPath $mainActivity)) {
+    throw "Android MainActivity.kt was not found after extraction."
+}
+$content = [System.IO.File]::ReadAllText($mainActivity)
+$content = [regex]::Replace($content, '(?m)^import androidx\.compose\.foundation\.layout\.weight\r?\n', '')
+$content = $content.Replace(
+    "import androidx.compose.foundation.text.SelectionContainer",
+    "import androidx.compose.foundation.text.selection.SelectionContainer"
+)
+if ($content -match 'import androidx\.compose\.foundation\.layout\.weight') {
+    throw "Compose weight import compatibility fix did not apply."
+}
+if ($content -notmatch 'import androidx\.compose\.foundation\.text\.selection\.SelectionContainer') {
+    throw "Compose SelectionContainer import compatibility fix did not apply."
+}
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+[System.IO.File]::WriteAllText($mainActivity, $content, $utf8NoBom)
+
+Write-Host "Source archive verified, extracted, and Compose imports patched: $Destination"

@@ -36,6 +36,24 @@ jobs:
           echo "50e8eaff4491a78d71c2371f37ff7f3f2be16a6924b85c68aeef9ae826e824b9  $RUNNER_TEMP/reqable-bridge-source-v0.1.zip" | sha256sum --check
           mkdir -p "$RUNNER_TEMP/reqable-bridge-source"
           unzip -q "$RUNNER_TEMP/reqable-bridge-source-v0.1.zip" -d "$RUNNER_TEMP/reqable-bridge-source"
+      - name: Apply Compose import compatibility fix
+        run: |
+          python3 - "$RUNNER_TEMP/reqable-bridge-source/reqable-bridge/android/app/src/main/java/com/reqable/bridge/MainActivity.kt" <<'PY'
+          from pathlib import Path
+          import sys
+          path = Path(sys.argv[1])
+          source = path.read_text()
+          source = source.replace("import androidx.compose.foundation.layout.weight\n", "")
+          source = source.replace(
+              "import androidx.compose.foundation.text.SelectionContainer",
+              "import androidx.compose.foundation.text.selection.SelectionContainer",
+          )
+          if "import androidx.compose.foundation.layout.weight" in source:
+              raise SystemExit("Compose weight import fix did not apply")
+          if "import androidx.compose.foundation.text.selection.SelectionContainer" not in source:
+              raise SystemExit("Compose SelectionContainer import fix did not apply")
+          path.write_text(source)
+          PY
       - name: Install Android SDK 35
         run: yes | sdkmanager --licenses >/dev/null && sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
       - name: Assemble debug APK
@@ -53,24 +71,10 @@ jobs:
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
-      - name: Assemble and verify source archive
+      - name: Assemble, verify, and patch source archive
         shell: pwsh
         run: |
-          $parts = Get-ChildItem -LiteralPath 'source/parts' -Filter 'part-*.bin' | Sort-Object Name
-          if ($parts.Count -ne 7) { throw "Expected 7 source archive segments." }
-          $archive = Join-Path $env:RUNNER_TEMP 'reqable-bridge-source-v0.1.zip'
-          $stream = [System.IO.File]::Create($archive)
-          try {
-            foreach ($part in $parts) {
-              $bytes = [System.IO.File]::ReadAllBytes($part.FullName)
-              $stream.Write($bytes, 0, $bytes.Length)
-            }
-          } finally { $stream.Dispose() }
-          $expected = '50e8eaff4491a78d71c2371f37ff7f3f2be16a6924b85c68aeef9ae826e824b9'
-          $actual = (Get-FileHash -LiteralPath $archive -Algorithm SHA256).Hash.ToLowerInvariant()
-          if ($actual -ne $expected) { throw "Source archive SHA-256 mismatch: $actual" }
-          $destination = Join-Path $env:RUNNER_TEMP 'source'
-          Expand-Archive -LiteralPath $archive -DestinationPath $destination -Force
+          & .\source\assemble.ps1 -Destination "$env:RUNNER_TEMP\source"
       - name: Compile and test Windows bridge
         shell: pwsh
         run: |

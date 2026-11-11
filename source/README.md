@@ -8,6 +8,6 @@ On Windows, run:
 powershell -ExecutionPolicy Bypass -File .\source\assemble.ps1
 ```
 
-The script reconstructs `reqable-bridge-source-v0.1.zip`, verifies its SHA-256, and extracts it to `source/extracted/`.
+The script reconstructs `reqable-bridge-source-v0.1.zip`, verifies its SHA-256, extracts it to `source/extracted/`, and applies the Compose import compatibility fix to the extracted Android source.
 
-GitHub Actions performs the same reconstruction automatically before building and testing.
+GitHub Actions performs the same reconstruction and fix automatically before building and testing.

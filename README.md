@@ -10,7 +10,7 @@ The complete v0.1 source archive is stored losslessly as seven ordered binary se
 powershell -ExecutionPolicy Bypass -File .\source\assemble.ps1
 ```
 
-The script verifies the reconstructed archive SHA-256 before extraction.
+The script verifies the reconstructed archive SHA-256, extracts it, and applies the Android Compose import compatibility fix required by the current Compose toolchain.
 
 ## What it does
 
@@ -24,7 +24,7 @@ This is near-real-time forwarding of completed HTTP sessions, not a raw TCP/IP p
 
 ## Build and verification
 
-GitHub Actions assembles the source archive, builds a debug APK, and runs Windows bridge tests. Physical-device hotspot connectivity and end-to-end Reqable transfer still require validation on the target devices.
+GitHub Actions assembles the source archive, applies the same Compose import fix, builds a debug APK, and runs Windows bridge tests. Physical-device hotspot connectivity and end-to-end Reqable transfer still require validation on the target devices.
 
 ## Security
 
