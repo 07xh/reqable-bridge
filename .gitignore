@@ -1,0 +1,25 @@
+# Credentials and local configuration
+**/config.json
+.env
+.env.*
+
+# Local capture data
+*.har
+*.har.gz
+*.pcap
+*.pcapng
+*.db
+*.sqlite
+*.sqlite3
+*.log
+
+# Build and Python artifacts
+**/__pycache__/
+*.pyc
+**/.gradle/
+**/build/
+**/local.properties
+**/dist/
+**/build_exe.spec
+.venv/
+venv/

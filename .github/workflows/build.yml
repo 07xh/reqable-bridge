@@ -1,0 +1,58 @@
+name: Build Reqable Bridge
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - 'source/**'
+      - 'README.md'
+      - 'STATUS.md'
+      - '.github/workflows/build.yml'
+  pull_request:
+    paths:
+      - 'source/**'
+      - 'README.md'
+      - 'STATUS.md'
+      - '.github/workflows/build.yml'
+
+jobs:
+  android-debug:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - uses: gradle/actions/setup-gradle@v4
+        with:
+          gradle-version: '8.9'
+      - name: Extract source
+        run: unzip -q source/reqable-bridge-source-v0.1.tar.gz -d "$RUNNER_TEMP/reqable-bridge-source"
+      - name: Install Android SDK 35
+        run: yes | sdkmanager --licenses >/dev/null && sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
+      - name: Assemble debug APK
+        run: gradle -p "$RUNNER_TEMP/reqable-bridge-source/reqable-bridge/android" assembleDebug
+      - uses: actions/upload-artifact@v4
+        with:
+          name: reqable-bridge-debug-apk
+          path: ${{ runner.temp }}/reqable-bridge-source/reqable-bridge/android/app/build/outputs/apk/debug/app-debug.apk
+          if-no-files-found: error
+
+  windows-bridge-tests:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Extract source
+        shell: pwsh
+        run: tar -xzf source/reqable-bridge-source-v0.1.tar.gz -C "$env:RUNNER_TEMP"
+      - name: Compile and test Windows bridge
+        shell: pwsh
+        run: |
+          Set-Location "$env:RUNNER_TEMP\reqable-bridge\windows-bridge"
+          python -m py_compile bridge.py desktop.py tests/test_bridge.py
+          python -m unittest discover -s tests -v
