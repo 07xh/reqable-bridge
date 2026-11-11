@@ -17,6 +17,7 @@ on:
 
 jobs:
   android-debug:
+    if: ${{ hashFiles('source/reqable-bridge-source-v0.1.zip') != '' }}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -29,7 +30,7 @@ jobs:
         with:
           gradle-version: '8.9'
       - name: Extract source
-        run: mkdir -p "$RUNNER_TEMP/reqable-bridge-source" && tar -xzf source/reqable-bridge-source-v0.1.tar.gz -C "$RUNNER_TEMP/reqable-bridge-source"
+        run: mkdir -p "$RUNNER_TEMP/reqable-bridge-source" && unzip -q source/reqable-bridge-source-v0.1.zip -d "$RUNNER_TEMP/reqable-bridge-source"
       - name: Install Android SDK 35
         run: yes | sdkmanager --licenses >/dev/null && sdkmanager 'platforms;android-35' 'build-tools;35.0.0'
       - name: Assemble debug APK
@@ -41,6 +42,7 @@ jobs:
           if-no-files-found: error
 
   windows-bridge-tests:
+    if: ${{ hashFiles('source/reqable-bridge-source-v0.1.zip') != '' }}
     runs-on: windows-latest
     steps:
       - uses: actions/checkout@v4
@@ -49,7 +51,7 @@ jobs:
           python-version: '3.12'
       - name: Extract source
         shell: pwsh
-        run: tar -xzf source/reqable-bridge-source-v0.1.tar.gz -C "$env:RUNNER_TEMP"
+        run: Expand-Archive -LiteralPath 'source/reqable-bridge-source-v0.1.zip' -DestinationPath "$env:RUNNER_TEMP"
       - name: Compile and test Windows bridge
         shell: pwsh
         run: |
