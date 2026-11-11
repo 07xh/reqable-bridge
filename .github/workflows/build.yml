@@ -6,13 +6,11 @@ on:
     paths:
       - 'source/**'
       - 'README.md'
-      - 'STATUS.md'
       - '.github/workflows/build.yml'
   pull_request:
     paths:
       - 'source/**'
       - 'README.md'
-      - 'STATUS.md'
       - '.github/workflows/build.yml'
 
 jobs:
