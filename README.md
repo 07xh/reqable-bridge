@@ -29,3 +29,8 @@ GitHub Actions assembles the source archive, applies the same Compose import fix
 ## Security
 
 Do not commit `config.json`, HAR files, packet captures, SQLite databases, access tokens, or real traffic exports. Captured traffic may contain cookies and credentials. Keep the repository private if you plan to store real capture samples or device-specific configuration.
+## Optional AI-powered Reqable workflow (Windows)
+
+The `.mcp.json` workspace configuration connects an MCP-compatible AI assistant to the official Reqable and Chrome DevTools MCP tools. For installation, access-token requirements, read-only validation and security guidance, see [Windows AI + MCP integration](docs/ai-mcp-windows.md).
+
+**This is optional and separate from Reqable Bridge's remote capture forwarding/control functionality.** Windows desktop Reqable and its MCP API must be running on the host; the configuration does not enable remote access to a powered-off PC.
